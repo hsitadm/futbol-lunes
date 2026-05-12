@@ -45,6 +45,9 @@ function showLoginForm() {
 function showAdminPanel() {
     document.getElementById('login-section').style.display = 'none';
     document.getElementById('admin-panel').style.display = 'block';
+    if (!currentGameDate) {
+        currentGameDate = getNextMonday();
+    }
     document.getElementById('game-date-admin').textContent = formatDate(currentGameDate);
 }
 
@@ -55,19 +58,38 @@ async function adminLogin(event) {
     event.preventDefault();
     const email = document.getElementById('admin-email').value;
     const password = document.getElementById('admin-password').value;
+    const submitBtn = event.target.querySelector('button[type="submit"]');
+    
+    // Deshabilitar botón mientras procesa
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Entrando...';
 
-    const { data, error } = await supabaseClient.auth.signInWithPassword({
-        email,
-        password
-    });
+    try {
+        const { data, error } = await supabaseClient.auth.signInWithPassword({
+            email,
+            password
+        });
 
-    if (error) {
-        showNotification('Error de autenticación: ' + error.message, 'error');
-        return;
+        if (error) {
+            showNotification('Error: ' + error.message, 'error');
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Entrar';
+            return;
+        }
+
+        showAdminPanel();
+        try {
+            await loadAllData();
+        } catch (loadError) {
+            console.error('Error cargando datos:', loadError);
+            showNotification('Sesión iniciada pero error cargando datos: ' + loadError.message, 'warning');
+        }
+    } catch (e) {
+        console.error('Error en login:', e);
+        showNotification('Error inesperado: ' + e.message, 'error');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Entrar';
     }
-
-    showAdminPanel();
-    await loadAllData();
 }
 
 /**
@@ -321,7 +343,8 @@ function showNotification(message, type = 'success') {
     container.textContent = message;
     container.className = `notification ${type} show`;
 
+    const duration = type === 'error' ? 8000 : 4000;
     setTimeout(() => {
         container.className = 'notification';
-    }, 4000);
+    }, duration);
 }
