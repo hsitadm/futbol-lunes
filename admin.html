@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚽ Admin - Fútbol de los Lunes</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Saltar al contenido</a>
+
+    <!-- Notificación -->
+    <div id="notification" class="notification" role="alert" aria-live="polite"></div>
+
+    <!-- Header -->
+    <header class="header">
+        <h1>🔐 Panel de Administración</h1>
+        <p class="subtitle">Gestión del Fútbol de los Lunes</p>
+        <div class="game-date">📅 Semana: <span id="game-date-admin"></span></div>
+        <a href="index.html" class="nav-link">← Volver al sitio</a>
+    </header>
+
+    <main id="main-content" class="container">
+        <!-- Login Section -->
+        <section id="login-section" style="display: none;">
+            <div class="card login-card">
+                <h2>Iniciar Sesión</h2>
+                <form onsubmit="adminLogin(event)">
+                    <div class="form-group">
+                        <label for="admin-email">Email</label>
+                        <input type="email" id="admin-email" required autocomplete="email">
+                    </div>
+                    <div class="form-group">
+                        <label for="admin-password">Contraseña</label>
+                        <input type="password" id="admin-password" required autocomplete="current-password">
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Entrar</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- Admin Panel -->
+        <section id="admin-panel" style="display: none;">
+            <!-- Estadísticas -->
+            <div class="card">
+                <h2>📊 Resumen de la Semana</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="stat-confirmed">0</div>
+                        <div class="stat-label">Confirmados</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="stat-waitlist">0</div>
+                        <div class="stat-label">En Espera</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="stat-cancelled">0</div>
+                        <div class="stat-label">Cancelados</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="stat-spots">24</div>
+                        <div class="stat-label">Cupos Libres</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Acciones WhatsApp -->
+            <div class="card">
+                <h2>📱 Compartir Listado</h2>
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="adminCopyToClipboard()">
+                        📋 Copiar para WhatsApp
+                    </button>
+                    <button class="btn btn-accent" onclick="adminShareWhatsApp()">
+                        📱 Enviar por WhatsApp
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tabla de confirmaciones -->
+            <div class="card">
+                <h2>📋 Listado Actual</h2>
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Jugador</th>
+                                <th>Estado</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="confirmations-tbody">
+                            <tr><td colspan="4" class="empty-state">Cargando...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Registrar jugador -->
+            <div class="card">
+                <h2>➕ Registrar Nuevo Jugador</h2>
+                <form onsubmit="addPlayer(event)">
+                    <div class="form-group">
+                        <label for="new-player-name">Nombre completo</label>
+                        <input type="text" id="new-player-name" placeholder="Ej: Juan Pérez" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="new-player-phone">Teléfono (opcional)</label>
+                        <input type="tel" id="new-player-phone" placeholder="Ej: +57 300 123 4567">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Registrar Jugador</button>
+                </form>
+            </div>
+
+            <!-- Gestión de jugadores -->
+            <div class="card">
+                <h2>👥 Jugadores Registrados</h2>
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Teléfono</th>
+                                <th>Estado</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="players-tbody">
+                            <tr><td colspan="4" class="empty-state">Cargando...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Acciones peligrosas -->
+            <div class="card">
+                <h2>⚙️ Acciones</h2>
+                <div class="btn-group">
+                    <button class="btn btn-danger" onclick="resetWeek()">
+                        🔄 Resetear Semana
+                    </button>
+                    <button class="btn btn-outline" onclick="adminLogout()">
+                        🚪 Cerrar Sesión
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/config.js"></script>
+    <script src="js/whatsapp.js"></script>
+    <script src="js/admin.js"></script>
+</body>
+</html>
