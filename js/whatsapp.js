@@ -6,9 +6,9 @@ function generateWhatsAppMessage(confirmed, waitlist, gameDate) {
     var dateFormatted = formatDate(gameDate);
     var msg = '';
 
-    msg += '* Futbol ' + GAME_DAY + ' ' + dateFormatted + ' *\n\n';
+    msg += 'FUTBOL ' + GAME_DAY.toUpperCase() + ' ' + dateFormatted + '\n\n';
 
-    msg += '*Confirmados (' + confirmed.length + '/' + MAX_PLAYERS + '):*\n';
+    msg += 'Confirmados (' + confirmed.length + '/' + MAX_PLAYERS + '):\n';
     if (confirmed.length === 0) {
         msg += 'Nadie ha confirmado aun\n';
     } else {
@@ -18,7 +18,7 @@ function generateWhatsAppMessage(confirmed, waitlist, gameDate) {
     }
 
     if (waitlist.length > 0) {
-        msg += '\n*Lista de espera (' + waitlist.length + '):*\n';
+        msg += '\nLista de espera (' + waitlist.length + '):\n';
         for (var j = 0; j < waitlist.length; j++) {
             msg += (j + 1) + '. ' + waitlist[j].name + '\n';
         }
@@ -27,13 +27,13 @@ function generateWhatsAppMessage(confirmed, waitlist, gameDate) {
     msg += '\n';
     var spotsLeft = MAX_PLAYERS - confirmed.length;
     if (spotsLeft > 0) {
-        msg += '*Faltan ' + spotsLeft + ' cupos*\n';
+        msg += 'Faltan ' + spotsLeft + ' cupos\n';
     } else {
-        msg += '*Cupo lleno*\n';
+        msg += 'CUPO LLENO\n';
     }
 
     var baseUrl = window.location.origin + window.location.pathname.replace(/\/[^/]*$/, '/');
-    msg += '\nConfirma aqui: ' + baseUrl;
+    msg += '\nConfirma aqui:\n' + baseUrl;
 
     return msg;
 }
