@@ -1,6 +1,5 @@
 // ============================================
 // Configuración de Supabase
-// Reemplaza estos valores con los de tu proyecto
 // ============================================
 
 const SUPABASE_URL = 'https://tdvbmrqujlshqpwqtesu.supabase.co';

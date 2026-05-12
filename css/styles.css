@@ -216,6 +216,12 @@ input:focus {
     font-size: 0.85rem;
 }
 
+.btn-large {
+    padding: 1.2rem 2.5rem;
+    font-size: 1.3rem;
+    border-radius: 12px;
+}
+
 .btn-block {
     display: block;
     width: 100%;

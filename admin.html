@@ -17,7 +17,7 @@
         <h1>🔐 Panel de Administración</h1>
         <p class="subtitle">Gestión del Fútbol de los Lunes</p>
         <div class="game-date">📅 Semana: <span id="game-date-admin"></span></div>
-        <a href="index.html" class="nav-link">← Volver al sitio</a>
+        <a href="index.html" class="nav-link">← Ver listado público</a>
     </header>
 
     <main id="main-content" class="container">
@@ -66,10 +66,10 @@
 
             <!-- Acciones WhatsApp -->
             <div class="card">
-                <h2>📱 Compartir Listado</h2>
+                <h2>📱 Compartir al Grupo</h2>
                 <div class="btn-group">
                     <button class="btn btn-primary" onclick="adminCopyToClipboard()">
-                        📋 Copiar para WhatsApp
+                        📋 Copiar listado
                     </button>
                     <button class="btn btn-accent" onclick="adminShareWhatsApp()">
                         📱 Enviar por WhatsApp
@@ -113,16 +113,22 @@
                 </form>
             </div>
 
-            <!-- Gestión de jugadores -->
+            <!-- Links personalizados -->
             <div class="card">
-                <h2>👥 Jugadores Registrados</h2>
+                <h2>🔗 Links Personalizados</h2>
+                <p style="color: var(--text-light); margin-bottom: 1rem;">
+                    Cada jugador tiene un link único para confirmar. Copia y envía por WhatsApp.
+                </p>
+                <button class="btn btn-accent" onclick="copyAllLinks()" style="margin-bottom: 1rem;">
+                    📋 Copiar todos los links
+                </button>
                 <div style="overflow-x: auto;">
                     <table>
                         <thead>
                             <tr>
-                                <th>Nombre</th>
+                                <th>Jugador</th>
                                 <th>Teléfono</th>
-                                <th>Estado</th>
+                                <th>Link</th>
                                 <th>Acción</th>
                             </tr>
                         </thead>
@@ -133,7 +139,7 @@
                 </div>
             </div>
 
-            <!-- Acciones peligrosas -->
+            <!-- Acciones -->
             <div class="card">
                 <h2>⚙️ Acciones</h2>
                 <div class="btn-group">

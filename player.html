@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚽ Confirmar Asistencia</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Saltar al contenido</a>
+
+    <!-- Notificación -->
+    <div id="notification" class="notification" role="alert" aria-live="polite"></div>
+
+    <!-- Header -->
+    <header class="header">
+        <h1>⚽ Fútbol de los Lunes</h1>
+        <p class="subtitle">Tu confirmación</p>
+        <div class="game-date">📅 <span id="game-date"></span></div>
+    </header>
+
+    <main id="main-content" class="container">
+        <!-- Estado de carga -->
+        <section id="loading-state" class="card" style="text-align: center;">
+            <p>Cargando...</p>
+        </section>
+
+        <!-- Error: jugador no encontrado -->
+        <section id="error-state" class="card" style="display: none; text-align: center;">
+            <h2>😕 Jugador no encontrado</h2>
+            <p style="color: var(--text-light); margin-top: 0.5rem;">
+                Este link no es válido. Pide al admin que te envíe tu link personal.
+            </p>
+            <a href="index.html" class="btn btn-outline" style="margin-top: 1rem;">Ver listado</a>
+        </section>
+
+        <!-- Panel del jugador -->
+        <section id="player-panel" class="card" style="display: none; text-align: center;">
+            <h2 id="player-greeting" style="font-size: 1.4rem; margin-bottom: 0.5rem;"></h2>
+            <p id="player-status-text" style="color: var(--text-light); margin-bottom: 1.5rem;"></p>
+
+            <!-- Botones de acción -->
+            <div class="btn-group" style="justify-content: center;">
+                <button id="btn-confirm" class="btn btn-primary btn-large" onclick="doConfirm()" style="display: none;">
+                    ✅ ¡Voy!
+                </button>
+                <button id="btn-cancel" class="btn btn-danger btn-large" onclick="doCancel()" style="display: none;">
+                    ❌ No voy
+                </button>
+            </div>
+
+            <!-- Info adicional -->
+            <div id="confirmation-info" style="margin-top: 1.5rem; display: none;">
+                <p id="position-info" style="font-size: 1.1rem; font-weight: 600;"></p>
+                <p id="spots-info" style="color: var(--text-light); margin-top: 0.25rem;"></p>
+            </div>
+        </section>
+
+        <!-- Resumen rápido -->
+        <section class="card" id="summary-card" style="display: none;">
+            <div class="progress-container">
+                <div class="progress-count" id="confirmed-count">0/24</div>
+                <div class="progress-label">confirmados</div>
+                <div class="progress-bar-container">
+                    <div class="progress-fill" id="progress-bar" style="width: 0%"></div>
+                </div>
+            </div>
+            <a href="index.html" style="display: block; text-align: center; margin-top: 1rem; color: var(--primary);">
+                Ver listado completo →
+            </a>
+        </section>
+    </main>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/config.js"></script>
+    <script src="js/whatsapp.js"></script>
+    <script src="js/player.js"></script>
+</body>
+</html>

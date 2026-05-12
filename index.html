@@ -15,7 +15,7 @@
     <!-- Header -->
     <header class="header">
         <h1>⚽ Fútbol de los Lunes</h1>
-        <p class="subtitle">Confirma tu asistencia al partido</p>
+        <p class="subtitle">Listado de confirmados</p>
         <div class="game-date">📅 Próximo: <span id="game-date"></span></div>
         <a href="admin.html" class="nav-link">🔐 Admin</a>
     </header>
@@ -32,33 +32,6 @@
             </div>
         </section>
 
-        <!-- Selección de jugador y acciones -->
-        <section class="card" aria-label="Confirmar asistencia">
-            <h2>Tu Asistencia</h2>
-            <div class="form-group">
-                <label for="player-select">¿Quién eres?</label>
-                <select id="player-select" aria-describedby="player-help">
-                    <option value="">-- Selecciona tu nombre --</option>
-                </select>
-                <small id="player-help" style="color: var(--text-light); margin-top: 0.25rem; display: block;">
-                    Si no apareces en la lista, pide al admin que te registre.
-                </small>
-            </div>
-
-            <!-- Estado del jugador -->
-            <div id="player-status" class="player-status" style="display: none;"></div>
-
-            <!-- Botones de acción -->
-            <div class="btn-group">
-                <button id="btn-confirm" class="btn btn-primary" onclick="confirmAttendance()" style="display: none;">
-                    ✅ Confirmar Asistencia
-                </button>
-                <button id="btn-cancel" class="btn btn-danger" onclick="cancelAttendance()" style="display: none;">
-                    ❌ Cancelar Asistencia
-                </button>
-            </div>
-        </section>
-
         <!-- Lista de confirmados -->
         <section class="card" aria-label="Lista de confirmados">
             <h2>✅ Confirmados</h2>
@@ -71,6 +44,15 @@
                 <h3>⏳ Lista de Espera</h3>
                 <ol class="player-list" id="waitlist-list"></ol>
             </div>
+        </section>
+
+        <!-- Instrucciones -->
+        <section class="card">
+            <h2>📱 ¿Cómo confirmo?</h2>
+            <p style="color: var(--text-light); line-height: 1.8;">
+                Usa tu link personal que te envió el admin por WhatsApp.<br>
+                Con un solo clic confirmas o cancelas tu asistencia.
+            </p>
         </section>
     </main>
 

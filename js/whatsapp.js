@@ -4,10 +4,6 @@
 
 /**
  * Genera el texto formateado del listado para compartir en WhatsApp
- * @param {Array} confirmed - Lista de jugadores confirmados
- * @param {Array} waitlist - Lista de jugadores en espera
- * @param {string} gameDate - Fecha del partido
- * @returns {string} Texto formateado para WhatsApp
  */
 function generateWhatsAppMessage(confirmed, waitlist, gameDate) {
     const dateFormatted = formatDate(gameDate);
@@ -39,16 +35,13 @@ function generateWhatsAppMessage(confirmed, waitlist, gameDate) {
         message += `\n🔒 *Cupo lleno*`;
     }
 
-    message += `\n\n📋 Confirma aquí: ${window.location.origin}`;
+    message += `\n\n📋 Confirma aquí: ${window.location.origin}${window.location.pathname.replace(/\/[^/]*$/, '/')}`; 
 
     return message;
 }
 
 /**
  * Copia el listado al portapapeles
- * @param {Array} confirmed - Lista de jugadores confirmados
- * @param {Array} waitlist - Lista de jugadores en espera
- * @param {string} gameDate - Fecha del partido
  */
 async function copyToClipboard(confirmed, waitlist, gameDate) {
     const message = generateWhatsAppMessage(confirmed, waitlist, gameDate);
@@ -58,7 +51,6 @@ async function copyToClipboard(confirmed, waitlist, gameDate) {
         showNotification('✅ Listado copiado al portapapeles');
         return true;
     } catch (err) {
-        // Fallback para navegadores que no soportan clipboard API
         const textArea = document.createElement('textarea');
         textArea.value = message;
         textArea.style.position = 'fixed';
@@ -74,9 +66,6 @@ async function copyToClipboard(confirmed, waitlist, gameDate) {
 
 /**
  * Abre WhatsApp con el mensaje pre-cargado
- * @param {Array} confirmed - Lista de jugadores confirmados
- * @param {Array} waitlist - Lista de jugadores en espera
- * @param {string} gameDate - Fecha del partido
  */
 function shareToWhatsApp(confirmed, waitlist, gameDate) {
     const message = generateWhatsAppMessage(confirmed, waitlist, gameDate);
@@ -86,8 +75,6 @@ function shareToWhatsApp(confirmed, waitlist, gameDate) {
 
 /**
  * Formatea una fecha para mostrar
- * @param {string} dateStr - Fecha en formato YYYY-MM-DD
- * @returns {string} Fecha formateada
  */
 function formatDate(dateStr) {
     const date = new Date(dateStr + 'T12:00:00');

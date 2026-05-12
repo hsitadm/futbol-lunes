@@ -1,8 +1,8 @@
 // ============================================
 // Lógica del Panel de Administración
+// v2: Con links personalizados
 // ============================================
 
-// Inicializar cliente de Supabase
 const { createClient } = window.supabase;
 const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -19,9 +19,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     await checkAuth();
 });
 
-/**
- * Verifica si el admin está autenticado
- */
 async function checkAuth() {
     const { data: { session } } = await supabaseClient.auth.getSession();
 
@@ -51,16 +48,12 @@ function showAdminPanel() {
     document.getElementById('game-date-admin').textContent = formatDate(currentGameDate);
 }
 
-/**
- * Inicia sesión del administrador
- */
 async function adminLogin(event) {
     event.preventDefault();
     const email = document.getElementById('admin-email').value;
     const password = document.getElementById('admin-password').value;
     const submitBtn = event.target.querySelector('button[type="submit"]');
-    
-    // Deshabilitar botón mientras procesa
+
     submitBtn.disabled = true;
     submitBtn.textContent = 'Entrando...';
 
@@ -81,20 +74,15 @@ async function adminLogin(event) {
         try {
             await loadAllData();
         } catch (loadError) {
-            console.error('Error cargando datos:', loadError);
-            showNotification('Sesión iniciada pero error cargando datos: ' + loadError.message, 'warning');
+            showNotification('Error cargando datos: ' + loadError.message, 'warning');
         }
     } catch (e) {
-        console.error('Error en login:', e);
         showNotification('Error inesperado: ' + e.message, 'error');
         submitBtn.disabled = false;
         submitBtn.textContent = 'Entrar';
     }
 }
 
-/**
- * Cierra sesión del administrador
- */
 async function adminLogout() {
     await supabaseClient.auth.signOut();
     showLoginForm();
@@ -142,7 +130,7 @@ async function loadConfirmations() {
 }
 
 // ============================================
-// Renderizado Admin
+// Renderizado
 // ============================================
 
 function renderAdminBoard() {
@@ -150,13 +138,11 @@ function renderAdminBoard() {
     const waitlist = confirmations.filter(c => c.status === 'waitlist');
     const cancelled = confirmations.filter(c => c.status === 'cancelled');
 
-    // Estadísticas
     document.getElementById('stat-confirmed').textContent = confirmed.length;
     document.getElementById('stat-waitlist').textContent = waitlist.length;
     document.getElementById('stat-cancelled').textContent = cancelled.length;
     document.getElementById('stat-spots').textContent = Math.max(0, MAX_PLAYERS - confirmed.length);
 
-    // Tabla de confirmados
     const tbody = document.getElementById('confirmations-tbody');
     tbody.innerHTML = '';
 
@@ -189,15 +175,20 @@ function renderPlayersTable() {
     const tbody = document.getElementById('players-tbody');
     tbody.innerHTML = '';
 
+    const baseUrl = window.location.origin + window.location.pathname.replace('admin.html', '');
+
     allPlayers.forEach(player => {
+        const playerLink = `${baseUrl}player.html?j=${player.slug}`;
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td>${player.name}</td>
             <td>${player.phone || '-'}</td>
-            <td>${player.is_active ? '✅ Activo' : '❌ Inactivo'}</td>
             <td>
-                <button class="btn btn-small" onclick="togglePlayerActive('${player.id}', ${!player.is_active})">
-                    ${player.is_active ? 'Desactivar' : 'Activar'}
+                <code style="font-size: 0.75rem; word-break: break-all;">${playerLink}</code>
+            </td>
+            <td>
+                <button class="btn btn-small btn-primary" onclick="copyPlayerLink('${player.slug}', '${player.name}')">
+                    📋 Copiar
                 </button>
             </td>
         `;
@@ -206,12 +197,22 @@ function renderPlayersTable() {
 }
 
 // ============================================
-// Acciones del Admin
+// Acciones
 // ============================================
 
 /**
- * Registra un nuevo jugador
+ * Genera un slug a partir del nombre
  */
+function generateSlug(name) {
+    let slug = name.toLowerCase().trim();
+    slug = slug.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    slug = slug.replace(/\s+/g, '-');
+    slug = slug.replace(/[^a-z0-9\-]/g, '');
+    slug = slug.replace(/-+/g, '-');
+    slug = slug.replace(/^-|-$/g, '');
+    return slug;
+}
+
 async function addPlayer(event) {
     event.preventDefault();
     const name = document.getElementById('new-player-name').value.trim();
@@ -222,43 +223,42 @@ async function addPlayer(event) {
         return;
     }
 
+    // Generar slug
+    let slug = generateSlug(name);
+
+    // Verificar si ya existe
+    const { data: existing } = await supabaseClient
+        .from('players')
+        .select('slug')
+        .like('slug', `${slug}%`);
+
+    if (existing && existing.length > 0) {
+        const existingSlugs = existing.map(p => p.slug);
+        if (existingSlugs.includes(slug)) {
+            let counter = 1;
+            while (existingSlugs.includes(`${slug}-${counter}`)) {
+                counter++;
+            }
+            slug = `${slug}-${counter}`;
+        }
+    }
+
     const { error } = await supabaseClient
         .from('players')
-        .insert({ name, phone: phone || null });
+        .insert({ name, phone: phone || null, slug });
 
     if (error) {
         showNotification('Error registrando jugador: ' + error.message, 'error');
         return;
     }
 
-    showNotification(`✅ ${name} registrado exitosamente`);
+    showNotification(`✅ ${name} registrado. Slug: ${slug}`);
     document.getElementById('new-player-name').value = '';
     document.getElementById('new-player-phone').value = '';
 
     await loadAllData();
 }
 
-/**
- * Activa o desactiva un jugador
- */
-async function togglePlayerActive(playerId, isActive) {
-    const { error } = await supabaseClient
-        .from('players')
-        .update({ is_active: isActive })
-        .eq('id', playerId);
-
-    if (error) {
-        showNotification('Error actualizando jugador: ' + error.message, 'error');
-        return;
-    }
-
-    showNotification(isActive ? '✅ Jugador activado' : '❌ Jugador desactivado');
-    await loadAllData();
-}
-
-/**
- * Cancela la asistencia de un jugador (desde admin)
- */
 async function adminCancelPlayer(playerId) {
     if (!confirm('¿Cancelar la asistencia de este jugador?')) return;
 
@@ -268,24 +268,20 @@ async function adminCancelPlayer(playerId) {
     });
 
     if (error) {
-        showNotification('Error al cancelar: ' + error.message, 'error');
+        showNotification('Error: ' + error.message, 'error');
         return;
     }
 
     let message = '❌ Asistencia cancelada';
-    if (data.promoted_player) {
-        message += `. ${data.promoted_player} promovido de lista de espera.`;
+    if (data && data.promoted_player) {
+        message += `. ${data.promoted_player} promovido.`;
     }
     showNotification(message);
-
     await loadAllData();
 }
 
-/**
- * Resetea todas las confirmaciones de la semana
- */
 async function resetWeek() {
-    if (!confirm('⚠️ ¿Estás seguro? Esto eliminará TODAS las confirmaciones de esta semana.')) return;
+    if (!confirm('⚠️ ¿Eliminar TODAS las confirmaciones de esta semana?')) return;
     if (!confirm('Esta acción no se puede deshacer. ¿Continuar?')) return;
 
     const { error } = await supabaseClient.rpc('reset_week', {
@@ -293,16 +289,56 @@ async function resetWeek() {
     });
 
     if (error) {
-        showNotification('Error al resetear: ' + error.message, 'error');
+        showNotification('Error: ' + error.message, 'error');
         return;
     }
 
-    showNotification('🔄 Semana reseteada. Todas las confirmaciones fueron eliminadas.');
+    showNotification('🔄 Semana reseteada.');
     await loadAllData();
 }
 
 // ============================================
-// WhatsApp - Compartir listado
+// Links personalizados
+// ============================================
+
+function copyPlayerLink(slug, name) {
+    const baseUrl = window.location.origin + window.location.pathname.replace('admin.html', '');
+    const link = `${baseUrl}player.html?j=${slug}`;
+
+    navigator.clipboard.writeText(link).then(() => {
+        showNotification(`📋 Link de ${name} copiado`);
+    }).catch(() => {
+        // Fallback
+        const textArea = document.createElement('textarea');
+        textArea.value = link;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-9999px';
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        showNotification(`📋 Link de ${name} copiado`);
+    });
+}
+
+function copyAllLinks() {
+    const baseUrl = window.location.origin + window.location.pathname.replace('admin.html', '');
+    let text = '⚽ *Links de confirmación - Fútbol de los Lunes*\n\n';
+    text += 'Cada uno tiene su link personal. Guárdalo y úsalo cada semana:\n\n';
+
+    allPlayers.filter(p => p.is_active).forEach(player => {
+        text += `👤 *${player.name}*\n${baseUrl}player.html?j=${player.slug}\n\n`;
+    });
+
+    navigator.clipboard.writeText(text).then(() => {
+        showNotification('📋 Todos los links copiados');
+    }).catch(() => {
+        showNotification('Error copiando', 'error');
+    });
+}
+
+// ============================================
+// WhatsApp
 // ============================================
 
 function adminCopyToClipboard() {
