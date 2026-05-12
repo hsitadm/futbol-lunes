@@ -3,7 +3,8 @@
 // ============================================
 
 // Inicializar cliente de Supabase
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const { createClient } = window.supabase;
+const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // Estado de la aplicación
 let currentGameDate = null;
@@ -32,7 +33,7 @@ document.addEventListener('DOMContentLoaded', async () => {
  * Carga la lista de jugadores activos desde Supabase
  */
 async function loadPlayers() {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseClient
         .from('players')
         .select('*')
         .eq('is_active', true)
@@ -49,7 +50,7 @@ async function loadPlayers() {
  * Carga las confirmaciones de la semana actual
  */
 async function loadConfirmations() {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseClient
         .from('weekly_confirmations')
         .select(`
             *,
@@ -185,7 +186,7 @@ async function confirmAttendance() {
         return;
     }
 
-    const { data, error } = await supabase.rpc('confirm_attendance', {
+    const { data, error } = await supabaseClient.rpc('confirm_attendance', {
         p_player_id: playerId,
         p_game_date: currentGameDate
     });
@@ -215,7 +216,7 @@ async function cancelAttendance() {
 
     if (!confirm('¿Seguro que quieres cancelar tu asistencia?')) return;
 
-    const { data, error } = await supabase.rpc('cancel_attendance', {
+    const { data, error } = await supabaseClient.rpc('cancel_attendance', {
         p_player_id: playerId,
         p_game_date: currentGameDate
     });

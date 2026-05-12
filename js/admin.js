@@ -2,7 +2,9 @@
 // Lógica del Panel de Administración
 // ============================================
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Inicializar cliente de Supabase
+const { createClient } = window.supabase;
+const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let currentGameDate = null;
 let allPlayers = [];
@@ -21,7 +23,7 @@ document.addEventListener('DOMContentLoaded', async () => {
  * Verifica si el admin está autenticado
  */
 async function checkAuth() {
-    const { data: { session } } = await supabase.auth.getSession();
+    const { data: { session } } = await supabaseClient.auth.getSession();
 
     if (session) {
         showAdminPanel();
@@ -54,7 +56,7 @@ async function adminLogin(event) {
     const email = document.getElementById('admin-email').value;
     const password = document.getElementById('admin-password').value;
 
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabaseClient.auth.signInWithPassword({
         email,
         password
     });
@@ -72,7 +74,7 @@ async function adminLogin(event) {
  * Cierra sesión del administrador
  */
 async function adminLogout() {
-    await supabase.auth.signOut();
+    await supabaseClient.auth.signOut();
     showLoginForm();
 }
 
@@ -88,7 +90,7 @@ async function loadAllData() {
 }
 
 async function loadAllPlayers() {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseClient
         .from('players')
         .select('*')
         .order('name');
@@ -101,7 +103,7 @@ async function loadAllPlayers() {
 }
 
 async function loadConfirmations() {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseClient
         .from('weekly_confirmations')
         .select(`
             *,
@@ -198,7 +200,7 @@ async function addPlayer(event) {
         return;
     }
 
-    const { error } = await supabase
+    const { error } = await supabaseClient
         .from('players')
         .insert({ name, phone: phone || null });
 
@@ -218,7 +220,7 @@ async function addPlayer(event) {
  * Activa o desactiva un jugador
  */
 async function togglePlayerActive(playerId, isActive) {
-    const { error } = await supabase
+    const { error } = await supabaseClient
         .from('players')
         .update({ is_active: isActive })
         .eq('id', playerId);
@@ -238,7 +240,7 @@ async function togglePlayerActive(playerId, isActive) {
 async function adminCancelPlayer(playerId) {
     if (!confirm('¿Cancelar la asistencia de este jugador?')) return;
 
-    const { data, error } = await supabase.rpc('cancel_attendance', {
+    const { data, error } = await supabaseClient.rpc('cancel_attendance', {
         p_player_id: playerId,
         p_game_date: currentGameDate
     });
@@ -264,7 +266,7 @@ async function resetWeek() {
     if (!confirm('⚠️ ¿Estás seguro? Esto eliminará TODAS las confirmaciones de esta semana.')) return;
     if (!confirm('Esta acción no se puede deshacer. ¿Continuar?')) return;
 
-    const { error } = await supabase.rpc('reset_week', {
+    const { error } = await supabaseClient.rpc('reset_week', {
         p_game_date: currentGameDate
     });
 
